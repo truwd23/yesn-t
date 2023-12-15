@@ -22,7 +22,7 @@ def calculate_mape(y_true, y_pred):
 
 
 # Memuat data dari file CSV
-file_path = 'kosan.csv'
+file_path = 'data.csv'
 data_kos = pd.read_csv(file_path)
 data_kos['K. Mandi Dalam'] = data_kos['Fasilitas'].apply(
     lambda x: 1 if 'K. Mandi Dalam' in x else 0)
