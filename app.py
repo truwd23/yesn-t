@@ -22,23 +22,23 @@ def calculate_mape(y_true, y_pred):
 
 
 # Memuat data dari file CSV
-file_path = 'data.csv'
-data_kos = pd.read_csv(file_path)
-data_kos['K. Mandi Dalam'] = data_kos['Fasilitas'].apply(
-    lambda x: 1 if 'K. Mandi Dalam' in x else 0)
-data_kos['WiFi'] = data_kos['Fasilitas'].apply(
-    lambda x: 1 if 'WiFi' in x else 0)
-data_kos['Kasur'] = data_kos['Fasilitas'].apply(
-    lambda x: 1 if 'Kasur' in x else 0)
-data_kos['AC'] = data_kos['Fasilitas'].apply(lambda x: 1 if 'AC' in x else 0)
-data_kos['Kloset Duduk'] = data_kos['Fasilitas'].apply(
-    lambda x: 1 if 'Kloset Duduk' in x else 0)
-data_kos['Akses 24 Jam'] = data_kos['Fasilitas'].apply(
-    lambda x: 1 if 'Akses 24 Jam' in x else 0)
+# file_path = 'data.csv'
+# data_kos = pd.read_csv(file_path)
+# data_kos['K. Mandi Dalam'] = data_kos['Fasilitas'].apply(
+#     lambda x: 1 if 'K. Mandi Dalam' in x else 0)
+# data_kos['WiFi'] = data_kos['Fasilitas'].apply(
+#     lambda x: 1 if 'WiFi' in x else 0)
+# data_kos['Kasur'] = data_kos['Fasilitas'].apply(
+#     lambda x: 1 if 'Kasur' in x else 0)
+# data_kos['AC'] = data_kos['Fasilitas'].apply(lambda x: 1 if 'AC' in x else 0)
+# data_kos['Kloset Duduk'] = data_kos['Fasilitas'].apply(
+#     lambda x: 1 if 'Kloset Duduk' in x else 0)
+# data_kos['Akses 24 Jam'] = data_kos['Fasilitas'].apply(
+#     lambda x: 1 if 'Akses 24 Jam' in x else 0)
 
-# Mengganti jenis kos menjadi campur = 1, peria = 2, dan wanita = 3
-data_kos['Jenis'] = data_kos['Jenis'].map(
-    {'Campur': 1, 'Putra': 2, 'Putri': 3})
+# # Mengganti jenis kos menjadi campur = 1, peria = 2, dan wanita = 3
+# data_kos['Jenis'] = data_kos['Jenis'].map(
+#     {'Campur': 1, 'Putra': 2, 'Putri': 3})
 
 # Menghitung prediksi harga
 X = data_kos[['Jenis', 'K. Mandi Dalam', 'WiFi',
