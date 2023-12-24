@@ -3,7 +3,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 import streamlit as st
 
 # Fungsi untuk memprediksi harga dengan Linear Regression
@@ -79,11 +79,14 @@ fitur_kos = np.array([
 ])
 
 # Standardisasi fitur input
-fitur_kos = scaler.transform(fitur_kos)
+scaler_fitur_kos = scaler.transform(fitur_kos)
+# Polynomial Features
+poly = PolynomialFeatures(degree=2, include_bias=False)
+poly_fitur_kos = poly.fit_transform(scaled_fitur_kos)
 
 # Prediksi harga
 harga_prediksi = np.expm1(predict_price(
-    model, fitur_kos))  # Transformasi invers log
+    model, poly_fitur_kos))  # Transformasi invers log
 
 # Menampilkan hasil prediksi
 st.subheader('Hasil Prediksi Harga')
