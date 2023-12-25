@@ -49,6 +49,10 @@ y = np.log1p(data_kos['Harga'])  # Log-transformasi variabel target
 scaler = StandardScaler()
 X = scaler.fit_transform(X)
 
+# Polynomial Features
+poly = PolynomialFeatures(degree=2, include_bias=False)
+X = poly.fit_transform(X)
+
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42)
 
@@ -78,11 +82,6 @@ fitur_kos = np.array([
      0 if akses_24_jam == 'Ya' else 1]
 ])
 
-# Standardisasi fitur input
-scaler_fitur_kos = scaler.transform(fitur_kos)
-# Polynomial Features
-poly = PolynomialFeatures(degree=2, include_bias=False)
-poly_fitur_kos = poly.fit_transform(scaler_fitur_kos)
 
 # Prediksi harga
 harga_prediksi = np.expm1(predict_price(
