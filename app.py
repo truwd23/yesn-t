@@ -82,7 +82,7 @@ fitur_kos = np.array([
 scaler_fitur_kos = scaler.transform(fitur_kos)
 # Polynomial Features
 poly = PolynomialFeatures(degree=2, include_bias=False)
-poly_fitur_kos = poly.fit_transform(scaled_fitur_kos)
+poly_fitur_kos = poly.fit_transform(scaler_fitur_kos)
 
 # Prediksi harga
 harga_prediksi = np.expm1(predict_price(
