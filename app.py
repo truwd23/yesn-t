@@ -83,9 +83,15 @@ fitur_kos = np.array([
 ])
 
 
+# Standardisasi fitur input
+fitur_kos = scaler.transform(fitur_kos)
+
+# Polynomial Features input
+fitur_end_kos = poly.fit_transform(fitur_kos)
+
 # Prediksi harga
 harga_prediksi = np.expm1(predict_price(
-    model, poly_fitur_kos))  # Transformasi invers log
+    model, fitur_end_kos))  # Transformasi invers log
 
 # Menampilkan hasil prediksi
 st.subheader('Hasil Prediksi Harga')
