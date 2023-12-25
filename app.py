@@ -77,8 +77,8 @@ akses_24_jam = st.selectbox('Akses 24 Jam', ['Ya', 'Tidak'])
 # Mengubah nilai 'Ya' dan 'Tidak' menjadi 1 dan 0
 jenis_kos_value = jenis_kos_mapping[jenis_kos]
 fitur_kos = np.array([
-    [jenis_kos_value, 1 if k_mandi_dalam == 'Ya' else 0, 1 if wifi == 'Ya' else 0,
-     1 if ac == 'Ya' else 0, 0 if kasur == 'Ya' else 1, 1 if kloset_duduk == 'Ya' else 0,
+    [jenis_kos_value, 0 if k_mandi_dalam == 'Ya' else 1, 0 if wifi == 'Ya' else 1,
+     1 if ac == 'Ya' else 0, 1 if kasur == 'Ya' else 0, 0 if kloset_duduk == 'Ya' else 1,
      0 if akses_24_jam == 'Ya' else 1]
 ])
 
