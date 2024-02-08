@@ -1,110 +1,108 @@
+import streamlit as st
 import pandas as pd
-import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.preprocessing import StandardScaler, PolynomialFeatures
-import streamlit as st
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score
+import numpy as np
 
-# Fungsi untuk memprediksi harga dengan Linear Regression
+# Load data from Excel
+data = pd.read_excel("setelah_outlier_oke.xlsx")  # Ganti "nama_file.xlsx" dengan nama file Excel yang berisi data
 
+# Features and target variable
+X = data.drop(["Harga","Nama"], axis=1)
+y = data["Harga"]
 
-def predict_price(model, fitur_kos):
-    harga_prediksi = model.predict(fitur_kos)[0]
-    return harga_prediksi
-
-# Fungsi untuk menghitung Mean Absolute Percentage Error (MAPE)
-
-
-def calculate_mape(y_true, y_pred):
-    mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
-    return mape
-
-
-# Memuat data dari file CSV
-file_path = 'data.csv'
-data_kos = pd.read_csv(file_path)
-# data_kos['K. Mandi Dalam'] = data_kos['Fasilitas'].apply(
-#     lambda x: 1 if 'K. Mandi Dalam' in x else 0)
-# data_kos['WiFi'] = data_kos['Fasilitas'].apply(
-#     lambda x: 1 if 'WiFi' in x else 0)
-# data_kos['Kasur'] = data_kos['Fasilitas'].apply(
-#     lambda x: 1 if 'Kasur' in x else 0)
-# data_kos['AC'] = data_kos['Fasilitas'].apply(lambda x: 1 if 'AC' in x else 0)
-# data_kos['Kloset Duduk'] = data_kos['Fasilitas'].apply(
-#     lambda x: 1 if 'Kloset Duduk' in x else 0)
-# data_kos['Akses 24 Jam'] = data_kos['Fasilitas'].apply(
-#     lambda x: 1 if 'Akses 24 Jam' in x else 0)
-
-# # Mengganti jenis kos menjadi campur = 1, peria = 2, dan wanita = 3
-# data_kos['Jenis'] = data_kos['Jenis'].map(
-#     {'Campur': 1, 'Putra': 2, 'Putri': 3})
-
-# Menghitung prediksi harga
-X = data_kos[['Jenis', 'K. Mandi Dalam', 'WiFi',
-              'AC', 'Kasur', 'Kloset Duduk', 'Akses 24 Jam']]
-y = np.log1p(data_kos['Harga'])  # Log-transformasi variabel target
-
-# Standardisasi fitur-fitur numerik
+# StandardScaler
 scaler = StandardScaler()
-X = scaler.fit_transform(X)
+X_scaled = scaler.fit_transform(X)
 
-# # Polynomial Features
-# poly = PolynomialFeatures(degree=2, include_bias=False)
-# X = poly.fit_transform(X)
+# Train-test split
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3, random_state=42)
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42)
-
-# Menggunakan Linear Regression
+# Multiple Linear Regression model
 model = LinearRegression()
 model.fit(X_train, y_train)
 
-# Tampilan Streamlit
-st.title('Aplikasi Prediksi Harga Kos')
-st.write('Gunakan formulir di bawah untuk memasukkan fitur kos dan memprediksi harga.')
-
-# Formulir input untuk fitur kos
-jenis_kos_mapping = {'Campur': 1, 'Putra': 2, 'Putri': 3}
-jenis_kos = st.selectbox('Jenis Kos', list(jenis_kos_mapping.keys()))
-k_mandi_dalam = st.selectbox('K. Mandi Dalam', ['Ya', 'Tidak'])
-wifi = st.selectbox('WiFi', ['Ya', 'Tidak'])
-ac = st.selectbox('AC', ['Ya', 'Tidak'])
-kasur = st.selectbox('Kasur', ['Ya', 'Tidak'])
-kloset_duduk = st.selectbox('Kloset Duduk', ['Ya', 'Tidak'])
-akses_24_jam = st.selectbox('Akses 24 Jam', ['Ya', 'Tidak'])
-
-# Mengubah nilai 'Ya' dan 'Tidak' menjadi 1 dan 0
-jenis_kos_value = jenis_kos_mapping[jenis_kos]
-fitur_kos = np.array([
-    [jenis_kos_value, 1 if k_mandi_dalam == 'Ya' else 0, 1 if wifi == 'Ya' else 0,
-     1 if ac == 'Ya' else 0, 0 if kasur == 'Ya' else 1, 1 if kloset_duduk == 'Ya' else 0,
-     0 if akses_24_jam == 'Ya' else 1]
-])
+# Prediction function
+def predict_price(jenis, listrik, akses_24_jam, ac, kasur, k_mandi_dalam, kloset_duduk, penjaga_kos,
+                  pengurus_kos, cctv, wifi, tempat_ibadah, bank, rumah_sakit, universitas):
+    input_data = np.array([jenis, listrik, akses_24_jam, ac, kasur, k_mandi_dalam, kloset_duduk, penjaga_kos,
+                           pengurus_kos, cctv, wifi, tempat_ibadah, bank, rumah_sakit, universitas]).reshape(1, -1)
+    input_data_scaled = scaler.transform(input_data)
+    predicted_price = model.predict(input_data_scaled)
+    return predicted_price[0]
 
 
-# Standardisasi fitur input
-fitur_kos = scaler.transform(fitur_kos)
+# Function to get informative text based on input
+def get_info_text(input_value, info_dict):
+    return info_dict.get(input_value, "No information available.")
 
-# # Polynomial Features input
-# fitur_end_kos = poly.fit_transform(fitur_kos)
+# Information dictionary for jenis and universitas
+jenis_info = {
+    0: "Pilih Antara 1 - 3 ",
+    1: "Putra",
+    2: "Putri",
+    3: "Campur"
+}
 
-# Prediksi harga
-harga_prediksi = np.expm1(predict_price(
-    model, fitur_kos))  # Transformasi invers log
 
-# Menampilkan hasil prediksi
-st.subheader('Hasil Prediksi Harga')
-st.write(f'Harga yang diprediksi: Rp {harga_prediksi:,.0f}')
+# Streamlit app
+st.title("Estimasi Harga Kos using Multiple Linear Regression")
 
-# Menampilkan metrik evaluasi model
-y_pred = model.predict(X_test)
-mse = mean_squared_error(y_test, y_pred)
-r2 = r2_score(y_test, y_pred)
-mape = calculate_mape(np.expm1(y_test), np.expm1(y_pred)
-                      )  # Transformasi invers log
+jenis = st.number_input("Jenis", min_value=0, max_value=3, step=1)
+st.write("Jenis:", get_info_text(jenis, jenis_info))
+listrik = st.number_input("Listrik", min_value=0, max_value=1, step=1)
+akses_24_jam = st.number_input("Akses 24 Jam", min_value=0, max_value=1, step=1)
+ac = st.number_input("AC", min_value=0, max_value=1, step=1)
+kasur = st.number_input("Kasur", min_value=0, max_value=1, step=1)
+k_mandi_dalam = st.number_input("K. Mandi Dalam", min_value=0, max_value=1, step=1)
+kloset_duduk = st.number_input("Kloset Duduk", min_value=0, max_value=1, step=1)
+penjaga_kos = st.number_input("Penjaga Kos", min_value=0, max_value=1, step=1)
+pengurus_kos = st.number_input("Pengurus Kos", min_value=0, max_value=1, step=1)
+cctv = st.number_input("CCTV", min_value=0, max_value=1, step=1)
+wifi = st.number_input("WiFi", min_value=0, max_value=1, step=1)
+tempat_ibadah = st.number_input("Tempat Ibadah", min_value=0, max_value=1, step=1)
+bank = st.number_input("Bank", min_value=0, max_value=1, step=1)
+rumah_sakit = st.number_input("Rumah Sakit", min_value=0, max_value=1, step=1)
+universitas = st.number_input("Universitas", min_value=0, max_value=1, step=1)
 
-st.subheader('Evaluasi Model')
-st.write(f'Mean Squared Error (MSE): {mse:.2f}')
-st.write(f'R-squared (R2): {r2:.2f}')
-st.write(f'Mean Absolute Percentage Error (MAPE): {mape:.2f}%')
+if st.button("Predict"):
+    # Simpan harga dan nama kos sebelumnya
+    existing_prices = data['Harga']
+    existing_names = data['Nama']
+
+    # Predict harga dengan fungsi predict_price
+    predicted_price = predict_price(jenis, listrik, akses_24_jam, ac, kasur, k_mandi_dalam, kloset_duduk,
+                                    penjaga_kos, pengurus_kos, cctv, wifi, tempat_ibadah, bank, rumah_sakit, universitas)
+
+    # Mengubah nilai prediksi menjadi integer
+    predicted_price = int(predicted_price)
+
+    st.success(f"Predicted Price: {predicted_price}")
+
+    # Tampilkan harga dan nama kos sebelumnya
+    st.write(f"Name Kos: {existing_names.iloc[0]}")
+    st.write(f"Harga Kos: {existing_prices.iloc[0]}")
+
+    # Berikan rentang harga sekitar 100,000 dari harga sebelumnya
+    lower_bound = existing_prices.iloc[0] - 200000
+    upper_bound = existing_prices.iloc[0] + 200000
+
+    # Pilih beberapa data dengan rentang harga tertentu secara acak
+    selected_data = data[(data['Harga'] >= lower_bound) & (data['Harga'] <= upper_bound)].sample(n=5, random_state=42)
+
+    st.write(f"\nEstimasi Harga dengan Perkiraan :  ({lower_bound} - {upper_bound}):")
+    for index, row in selected_data.iterrows():
+        st.write(f"{row['Nama']}: {row['Harga']}")
+
+    y_pred = model.predict(X_test)
+    mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    r2 = r2_score(y_test, y_pred)
+
+    st.subheader("Evaluasi Model:")
+    st.write(f"MAPE: {mape:.2f}%")
+    st.write(f"RMSE: {rmse:.2f}")
+    st.write(f"R^2 Score: {r2:.2f}")
