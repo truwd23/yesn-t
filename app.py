@@ -8,7 +8,7 @@ from sklearn.metrics import r2_score
 import numpy as np
 
 # Load data from Excel
-data = pd.read_excel("setelah_outlier_oke.xlsx")  # Ganti "nama_file.xlsx" dengan nama file Excel yang berisi data
+data = pd.read_csv("setelah_outlier_oke.csv")  # Ganti "nama_file.xlsx" dengan nama file Excel yang berisi data
 
 # Features and target variable
 X = data.drop(["Harga","Nama"], axis=1)
