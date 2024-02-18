@@ -82,10 +82,6 @@ if st.button("Predict"):
 
     st.success(f"Predicted Price: {predicted_price}")
 
-    # Tampilkan harga dan nama kos sebelumnya
-    st.write(f"Name Kos: {existing_names.iloc[0]}")
-    st.write(f"Harga Kos: {existing_prices.iloc[0]}")
-
     # Berikan rentang harga sekitar 100,000 dari harga sebelumnya
     lower_bound = existing_prices.iloc[0] - 200000
     upper_bound = existing_prices.iloc[0] + 200000
