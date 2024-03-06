@@ -94,8 +94,8 @@ if st.button("Estimasi"):
     max_display_rows = 10
     filtered_data_display = filtered_data.head(max_display_rows)
 
-    # Menampilkan tabel dengan kemampuan scroll
-    st.table(filtered_data_display[['Nama', 'Harga']], height=200)
+    # Menampilkan tabel dengan scrollbar
+    st.dataframe(filtered_data_display[['Nama', 'Harga']], height=200)
 
     # Menampilkan pesan jika terdapat lebih dari 10 data
     if len(filtered_data) > max_display_rows:
