@@ -95,11 +95,7 @@ if st.button("Estimasi"):
     filtered_data_display = filtered_data.head(max_display_rows)
 
     # Menampilkan tabel dengan scrollbar
-    st.dataframe(filtered_data_display[['Nama', 'Harga']], height=200)
-
-    # Menampilkan pesan jika terdapat lebih dari 10 data
-    if len(filtered_data) > max_display_rows:
-        st.info(f"Menampilkan 10 dari {len(filtered_data)} data. Gunakan scrollbar untuk melihat data lebih lanjut.")
+    st.dataframe(filtered_data_display[['Nama', 'Harga']], height=200, width=800)
 
     y_pred = model.predict(X_test)
     mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100
