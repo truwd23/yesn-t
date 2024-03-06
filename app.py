@@ -67,8 +67,9 @@ tempat_ibadah = st.number_input("Tempat Ibadah", min_value=0, max_value=1, step=
 bank = st.number_input("Bank", min_value=0, max_value=1, step=1)
 rumah_sakit = st.number_input("Rumah Sakit", min_value=0, max_value=1, step=1)
 universitas = st.number_input("Universitas", min_value=0, max_value=1, step=1)
+st.write("Pilih 1 apabila memiliki salah satu fasilitas yang ada di atas selain jenis kos.")
 
-if st.button("Predict"):
+if st.button("Estimasi"):
     # Simpan harga dan nama kos sebelumnya
     existing_prices = data['Harga']
     existing_names = data['Nama']
@@ -89,15 +90,16 @@ if st.button("Predict"):
     # Memfilter data sesuai dengan rentang harga
     filtered_data = data[(data['Harga'] >= lower_limit) & (data['Harga'] <= upper_limit)]
 
-    # Menampilkan data yang sesuai
-    st.table(filtered_data[['Nama', 'Harga']])
+    # Menampilkan data yang sesuai dengan batas maksimal 10 data
+    max_display_rows = 10
+    filtered_data_display = filtered_data.head(max_display_rows)
 
-    # Pilih beberapa data dengan rentang harga tertentu secara acak
-    selected_data = data[(data['Harga'] >= lower_bound) & (data['Harga'] <= upper_bound)].sample(n=5, random_state=42)
+    # Menampilkan tabel dengan kemampuan scroll
+    st.table(filtered_data_display[['Nama', 'Harga']])
 
-    st.write(f"\nEstimasi Harga dengan Perkiraan :  ({lower_bound} - {upper_bound}):")
-    for index, row in selected_data.iterrows():
-        st.write(f"{row['Nama']}: {row['Harga']}")
+    # Menampilkan pesan jika terdapat lebih dari 10 data
+    if len(filtered_data) > max_display_rows:
+    st.info(f"Menampilkan 10 dari {len(filtered_data)} data. Gunakan scrollbar untuk melihat data lebih lanjut.")
 
     y_pred = model.predict(X_test)
     mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100
