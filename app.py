@@ -82,9 +82,15 @@ if st.button("Predict"):
 
     st.success(f"Predicted Price: {predicted_price}")
 
-    # Berikan rentang harga sekitar 100,000 dari harga sebelumnya
-    lower_bound = existing_prices.iloc[0] - 200000
-    upper_bound = existing_prices.iloc[0] + 200000
+    # Menentukan rentang harga berdasarkan predicted price
+    lower_limit = predicted_price - 200000
+    upper_limit = predicted_price + 200000
+
+    # Memfilter data sesuai dengan rentang harga
+    filtered_data = data[(data['Harga'] >= lower_limit) & (data['Harga'] <= upper_limit)]
+
+    # Menampilkan data yang sesuai
+    st.table(filtered_data[['Nama', 'Harga']])
 
     # Pilih beberapa data dengan rentang harga tertentu secara acak
     selected_data = data[(data['Harga'] >= lower_bound) & (data['Harga'] <= upper_bound)].sample(n=5, random_state=42)
