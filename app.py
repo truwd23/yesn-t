@@ -14,16 +14,23 @@ data = pd.read_csv("setelah_outlier_oke.csv")  # Ganti "nama_file.xlsx" dengan n
 X = data.drop(["Harga","Nama"], axis=1)
 y = data["Harga"]
 
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
 # StandardScaler
 scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
+scaler.fit(X_train)
+X_train= scaler.transform(X_train)
+X_test = scaler.transform(X_test)
 
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3, random_state=42)
-
-# Multiple Linear Regression model
+# Menggunakan Linear Regression
 model = LinearRegression()
 model.fit(X_train, y_train)
+
+# Melakukan prediksi terhadap data training
+y_train_pred = model.predict(X_train)
+
+# Melakukan prediksi terhadap data testing
+y_test_pred = model.predict(X_test)
 
 # Prediction function
 def predict_price(jenis, listrik, akses_24_jam, ac, kasur, k_mandi_dalam, kloset_duduk, penjaga_kos,
