@@ -1,17 +1,16 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error
-from sklearn.metrics import r2_score
-import numpy as np
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_percentage_error
 
-# Load data from Excel
-data = pd.read_csv("setelah_outlier_oke.csv")  # Ganti "nama_file.xlsx" dengan nama file Excel yang berisi data
+# Load data
+data = pd.read_csv("setelah_outlier_oke.csv")
 
 # Features and target variable
-X = data.drop(["Harga","Nama"], axis=1)
+X = data.drop(["Harga", "Nama"], axis=1)
 y = data["Harga"]
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
@@ -19,47 +18,33 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random
 # StandardScaler
 scaler = StandardScaler()
 scaler.fit(X_train)
-X_train= scaler.transform(X_train)
+X_train = scaler.transform(X_train)
 X_test = scaler.transform(X_test)
 
-# Menggunakan Linear Regression
+# Linear Regression model
 model = LinearRegression()
 model.fit(X_train, y_train)
 
-# Melakukan prediksi terhadap data training
 y_train_pred = model.predict(X_train)
-
-# Melakukan prediksi terhadap data testing
 y_test_pred = model.predict(X_test)
 
-# Prediction function
-def predict_price(jenis, listrik, akses_24_jam, ac, kasur, k_mandi_dalam, kloset_duduk, penjaga_kos,
-                  pengurus_kos, cctv, wifi, tempat_ibadah, bank, rumah_sakit, universitas):
-    input_data = np.array([jenis, listrik, akses_24_jam, ac, kasur, k_mandi_dalam, kloset_duduk, penjaga_kos,
-                           pengurus_kos, cctv, wifi, tempat_ibadah, bank, rumah_sakit, universitas]).reshape(1, -1)
+# Model Evaluation
+r2_train = r2_score(y_train, y_train_pred)
+r2_test = r2_score(y_test, y_test_pred)
+rmse_train = np.sqrt(mean_squared_error(y_train, y_train_pred))
+rmse_test = np.sqrt(mean_squared_error(y_test, y_test_pred))
+mape_train = mean_absolute_percentage_error(y_train, y_train_pred)
+mape_test = mean_absolute_percentage_error(y_test, y_test_pred)
+
+def predict_price(features):
+    input_data = np.array(features).reshape(1, -1)
     input_data_scaled = scaler.transform(input_data)
-    predicted_price = model.predict(input_data_scaled)
-    return predicted_price[0]
+    return model.predict(input_data_scaled)[0]
 
-
-# Function to get informative text based on input
-def get_info_text(input_value, info_dict):
-    return info_dict.get(input_value, "No information available.")
-
-# Information dictionary for jenis and universitas
-jenis_info = {
-    0: "Pilih Antara 1 - 3 ",
-    1: "Putra",
-    2: "Putri",
-    3: "Campur"
-}
-
-
-# Streamlit app
+# Streamlit App
 st.title("Estimasi Harga Kos using Multiple Linear Regression")
 
 jenis = st.number_input("Jenis", min_value=0, max_value=3, step=1)
-st.write("Jenis:", get_info_text(jenis, jenis_info))
 listrik = st.number_input("Listrik", min_value=0, max_value=1, step=1)
 akses_24_jam = st.number_input("Akses 24 Jam", min_value=0, max_value=1, step=1)
 ac = st.number_input("AC", min_value=0, max_value=1, step=1)
@@ -74,42 +59,22 @@ tempat_ibadah = st.number_input("Tempat Ibadah", min_value=0, max_value=1, step=
 bank = st.number_input("Bank", min_value=0, max_value=1, step=1)
 rumah_sakit = st.number_input("Rumah Sakit", min_value=0, max_value=1, step=1)
 universitas = st.number_input("Universitas", min_value=0, max_value=1, step=1)
-st.write("Pilih 1 apabila memiliki salah satu fasilitas yang ada di atas selain jenis kos.")
 
 if st.button("Estimasi"):
-    # Simpan harga dan nama kos sebelumnya
-    existing_prices = data['Harga']
-    existing_names = data['Nama']
-
-    # Predict harga dengan fungsi predict_price
-    predicted_price = predict_price(jenis, listrik, akses_24_jam, ac, kasur, k_mandi_dalam, kloset_duduk,
-                                    penjaga_kos, pengurus_kos, cctv, wifi, tempat_ibadah, bank, rumah_sakit, universitas)
-
-    # Mengubah nilai prediksi menjadi integer
+    predicted_price = predict_price([jenis, listrik, akses_24_jam, ac, kasur, k_mandi_dalam, kloset_duduk,
+                                     penjaga_kos, pengurus_kos, cctv, wifi, tempat_ibadah, bank, rumah_sakit, universitas])
     predicted_price = int(predicted_price)
-
     st.success(f"Predicted Price: {predicted_price}")
-
-    # Menentukan rentang harga berdasarkan predicted price
+    
     lower_limit = predicted_price - 200000
     upper_limit = predicted_price + 200000
-
-    # Memfilter data sesuai dengan rentang harga
     filtered_data = data[(data['Harga'] >= lower_limit) & (data['Harga'] <= upper_limit)]
-
-    # Menampilkan data yang sesuai dengan batas maksimal 10 data
-    max_display_rows = 10
-    filtered_data_display = filtered_data.head(max_display_rows)
-
-    # Menampilkan tabel dengan scrollbar
-    st.dataframe(filtered_data_display[['Nama', 'Harga']], height=200, width=800)
-
-    y_pred = model.predict(X_test)
-    mape = np.mean(np.abs((y_test - y_pred) / y_test)) * 100
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-    r2 = r2_score(y_test, y_pred)
-
+    st.dataframe(filtered_data[['Nama', 'Harga']], height=200, width=800)
+    
     st.subheader("Evaluasi Model:")
-    st.write(f"MAPE: {mape:.2f}%")
-    st.write(f"RMSE: {rmse:.2f}")
-    st.write(f"R^2 Score: {r2:.2f}")
+    st.write(f"R^2 Score (Training): {r2_train:.2f}")
+    st.write(f"R^2 Score (Testing): {r2_test:.2f}")
+    st.write(f"RMSE (Training): {rmse_train:.2f}")
+    st.write(f"RMSE (Testing): {rmse_test:.2f}")
+    st.write(f"MAPE (Training): {mape_train:.2%}")
+    st.write(f"MAPE (Testing): {mape_test:.2%}")
