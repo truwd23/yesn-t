@@ -72,8 +72,6 @@ if st.button("Estimasi"):
     st.dataframe(filtered_data[['Nama', 'Harga']], height=200, width=800)
     
     st.subheader("Evaluasi Model:")
-    st.write(f"R^2 Score (Training): {r2_train:.2f}")
-    st.write(f"R^2 Score (Testing): {r2_test:.2f}")
     st.write(f"RMSE (Training): {rmse_train:.2f}")
     st.write(f"RMSE (Testing): {rmse_test:.2f}")
     st.write(f"MAPE (Training): {mape_train:.2%}")
